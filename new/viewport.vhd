@@ -50,14 +50,15 @@ begin
 
 process(i_clk)
     variable source_x, source_y : integer;
+    
     begin
         if rising_edge(i_clk) then
-            for i in 0 to 639 loop
-                for j in 0 to 659 loop
+            for i in 0 to VIEWPORT_SIZE_X loop
+                for j in 0 to VIEWPORT_SIZE_Y loop
                 
                     -- Wraparound using modulo
-                    source_x := (to_integer(unsigned(i_offset_x)) + i) mod 1024;
-                    source_y := (to_integer(unsigned(i_offset_y)) + j) mod 1024;
+                    source_x := (to_integer(unsigned(i_offset_x)) + i) mod (BG_SIZE_X + 1);
+                    source_y := (to_integer(unsigned(i_offset_y)) + j) mod (BG_SIZE_Y + 1);
 
                     o_viewport(i)(j) <= i_background(source_x)(source_y);
                 end loop;

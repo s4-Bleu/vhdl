@@ -32,8 +32,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 package viewport_package is
-    type background_type is array (0 to 1023) of std_logic_vector(1023 downto 0);
-    type viewport_type is array (0 to 639) of std_logic_vector(659 downto 0);
+    constant BG_SIZE_X : integer := 1023;
+    constant BG_SIZE_Y : integer := 1023;
+    constant VIEWPORT_SIZE_X : integer := 659;
+    constant VIEWPORT_SIZE_Y : integer := 639;
+
+    type background_type is array (0 to BG_SIZE_X) of std_logic_vector(BG_SIZE_Y downto 0);
+    type viewport_type is array (0 to VIEWPORT_SIZE_X) of std_logic_vector(VIEWPORT_SIZE_Y downto 0);
 end package viewport_package;
 
 package body viewport_package is
