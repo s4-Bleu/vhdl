@@ -36,34 +36,38 @@ use work.viewport_package.ALL;
 entity viewport is
     Port (
         i_clk :           in  std_logic;
+        i_reset :         in  std_logic;
         
-        i_offset_x :      in std_logic_vector(9 downto 0);
-        i_offset_y :      in std_logic_vector(9 downto 0);
-        i_background :    in background_type;
-        o_viewport :      out viewport_type
+        i_offset_x :       in integer;
+        i_offset_y :       in integer;
+        o_offset_x_left :  out integer;
+        o_offset_y_left :  out integer;
+        o_offset_x_right : out integer;
+        o_offset_y_right : out integer
         );
 end viewport;
 
 architecture Behavioral of viewport is
 
+signal s_offset_x_left: integer := 0;
+signal s_offset_y_left: integer := 0;
+
 begin
 
+o_offset_x_right <= s_offset_x_left + VIEWPORT_SIZE_X;
+o_offset_y_right <= s_offset_y_left + VIEWPORT_SIZE_Y;
+
 process(i_clk)
-    variable source_x, source_y : integer;
-    
     begin
         if rising_edge(i_clk) then
-            for i in 0 to VIEWPORT_SIZE_X loop
-                for j in 0 to VIEWPORT_SIZE_Y loop
-                
-                    -- Wraparound using modulo
-                    source_x := (to_integer(unsigned(i_offset_x)) + i) mod (BG_SIZE_X + 1);
-                    source_y := (to_integer(unsigned(i_offset_y)) + j) mod (BG_SIZE_Y + 1);
-
-                    o_viewport(i)(j) <= i_background(source_x)(source_y);
-                end loop;
-            end loop;
+            if i_reset = '1' then
+                o_offset_x_left <= 0;
+                o_offset_y_left <= 0;
+            else
+                o_offset_x_left <= s_offset_x_left + i_offset_x;
+                o_offset_y_left <= s_offset_y_left + i_offset_y;
+            end if;
         end if;
-    end process;
+end process;
 
 end Behavioral;
