@@ -36,9 +36,6 @@ package viewport_package is
     constant BG_SIZE_Y : integer := 1023;
     constant VIEWPORT_SIZE_X : integer := 659;
     constant VIEWPORT_SIZE_Y : integer := 639;
-
-    type background_type is array (0 to BG_SIZE_X) of std_logic_vector(BG_SIZE_Y downto 0);
-    type viewport_type is array (0 to VIEWPORT_SIZE_X) of std_logic_vector(VIEWPORT_SIZE_Y downto 0);
 end package viewport_package;
 
 package body viewport_package is
