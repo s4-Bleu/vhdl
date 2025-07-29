@@ -38,34 +38,52 @@ entity viewport is
         i_clk :           in  std_logic;
         i_reset :         in  std_logic;
         
-        i_offset_x :       in integer;
-        i_offset_y :       in integer;
-        o_offset_x_left :  out integer;
-        o_offset_y_left :  out integer;
-        o_offset_x_right : out integer;
-        o_offset_y_right : out integer
+        i_offset_x :      in integer;
+        i_offset_y :      in integer;
+        o_x :             out std_logic_vector(9 downto 0); -- Bit limitation x = Auto wraparound x
+        o_y :             out std_logic_vector(9 downto 0)  -- Bit limitation y = Auto wraparound y
         );
 end viewport;
 
 architecture Behavioral of viewport is
 
-signal s_offset_x_left: integer := 0;
-signal s_offset_y_left: integer := 0;
+signal s_offset_x: integer := 0;
+signal s_offset_y: integer := 0;
+signal s_position_x: integer := 0;
+signal s_position_y: integer := 0;
 
 begin
-
-o_offset_x_right <= s_offset_x_left + VIEWPORT_SIZE_X;
-o_offset_y_right <= s_offset_y_left + VIEWPORT_SIZE_Y;
 
 process(i_clk)
     begin
         if rising_edge(i_clk) then
             if i_reset = '1' then
-                o_offset_x_left <= 0;
-                o_offset_y_left <= 0;
+                o_x <= 0;
+                o_y <= 0;
             else
-                o_offset_x_left <= s_offset_x_left + i_offset_x;
-                o_offset_y_left <= s_offset_y_left + i_offset_y;
+                -- Update offset when we restart at origin position
+                if s_position_x = 0 and s_position_y = 0 then
+                    s_offset_x <= s_offset_x + i_offset_x;
+                    s_offset_y <= s_offset_y + i_offset_y;
+                end if;
+
+                -- Update outputs and cast into a logic vector to apply the waparounds
+                o_x <= std_logic_vector(to_unsigned(s_offset_x + s_position_x, 10));
+                o_y <= std_logic_vector(to_unsigned(s_offset_y + s_position_y, 10));
+
+                -- Update position for next iteration
+                s_position_x <= s_position_x + 1;
+
+                -- Be sure not to exceed the viewport x size and to increment y when needed
+                if s_position_x = VIEWPORT_SIZE_X then
+                    s_position_x <= 0;
+                    s_position_y <= s_position_y + 1;
+                end if;
+
+                -- Be sure not to exceed the viewport y size
+                if s_position_y = VIEWPORT_SIZE_Y then
+                    s_position_y <= 0;
+                end if;
             end if;
         end if;
 end process;

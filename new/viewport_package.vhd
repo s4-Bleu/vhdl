@@ -32,10 +32,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 package viewport_package is
-    constant BG_SIZE_X : integer := 1023;
-    constant BG_SIZE_Y : integer := 1023;
-    constant VIEWPORT_SIZE_X : integer := 659;
-    constant VIEWPORT_SIZE_Y : integer := 639;
+    constant BG_SIZE_X : integer := 1024;
+    constant BG_SIZE_Y : integer := 1024;
+    constant VIEWPORT_SIZE_X : integer := 660;
+    constant VIEWPORT_SIZE_Y : integer := 640;
 end package viewport_package;
 
 package body viewport_package is
