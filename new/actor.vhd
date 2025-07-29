@@ -26,7 +26,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity actor is
     Port ( 
         i_clk             : in  STD_LOGIC;
-        i_reset           : in  STD_LOGIC;
+--        i_reset           : in  STD_LOGIC;
         i_is_enable       : in STD_LOGIC;        
 
         -- Signaux de mise à jour
@@ -57,22 +57,22 @@ architecture Behavioral of actor is
     signal s_tile_id: STD_LOGIC_VECTOR(3 downto 0) := (others => '0'); -- la tuile de l'acteur
     
     -- FIN DES ELEMENTS DE MEMOIRE
-    signal s_is_reset    : STD_LOGIC := '0';
+--    signal s_is_reset    : STD_LOGIC := '0';
     
     constant largeur_acteur : integer := 16;
     constant hauteur_acteur : integer := 16;
 
 begin
 
-check_actor_update_needed : process(i_clk, i_reset)
+check_actor_update_needed : process(i_clk)
 begin 
-    if i_reset = '1' then
-        s_actor_pos_x <= (others=>'0');
-        s_actor_pos_y <= (others=>'0');
-        s_tile_id     <= (others=>'0');
-        s_is_reset <= '1';
+--    if i_reset = '1' then
+--        s_actor_pos_x <= (others=>'0');
+--        s_actor_pos_y <= (others=>'0');
+--        s_tile_id     <= (others=>'0');
+--        s_is_reset <= '1';
         
-    elsif rising_edge(i_clk) then
+    if rising_edge(i_clk) then
         if i_pos_update_en = '1' and i_is_enable = '1' then
             s_actor_pos_x <= i_new_pos_x;
             s_actor_pos_y <= i_new_pos_y;
@@ -82,23 +82,23 @@ begin
             s_tile_id <= i_new_tile_id;
         end if;
         
-        s_is_reset <= '0';
+--        s_is_reset <= '0';
     end if;
 end process;
 
-update_actor_output: process(i_curr_px_x, i_curr_px_y, s_actor_pos_x, s_actor_pos_y, s_tile_id, s_is_reset)
+update_actor_output: process(i_curr_px_x, i_curr_px_y, s_actor_pos_x, s_actor_pos_y, s_tile_id) --s_is_reset
     variable diff_x : unsigned(9 downto 0);
     variable diff_y : unsigned(9 downto 0);
 begin
 
-    if s_is_reset = '1' then
-        o_tile_px    <= (others => '0');
-        o_tile_py    <= (others => '0');
-        o_tile_id    <= (others => '0');
-        o_is_visible <= '0';
+--    if s_is_reset = '1' then
+--        o_tile_px    <= (others => '0');
+--        o_tile_py    <= (others => '0');
+--        o_tile_id    <= (others => '0');
+--        o_is_visible <= '0';
     
     -- on vérifier si le pixel courant est belle et bien dans la zone de l'acteur
-    elsif (unsigned(i_curr_px_x) >= unsigned(s_actor_pos_x)) and
+    if (unsigned(i_curr_px_x) >= unsigned(s_actor_pos_x)) and
        (unsigned(i_curr_px_x) < unsigned(s_actor_pos_x) + largeur_acteur) and
        (unsigned(i_curr_px_y) >= unsigned(s_actor_pos_y)) and
        (unsigned(i_curr_px_y) < unsigned(s_actor_pos_y) + hauteur_acteur) then

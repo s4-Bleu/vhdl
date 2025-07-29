@@ -34,7 +34,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity controller is
     Port ( i_instruction : in STD_LOGIC_VECTOR (31 downto 0);
            i_clk : in STD_LOGIC;
-           i_reset : in STD_LOGIC;
            
            -- actions sur le viewport
            o_viewport_curr_px_x : out STD_LOGIC_VECTOR (9 downto 0);
@@ -72,7 +71,7 @@ entity controller is
            o_bg_tile_buffer_tile_x      : out STD_LOGIC_VECTOR(2 downto 0);--8 pixel de large
            o_bg_tile_buffer_tile_y      : out STD_LOGIC_VECTOR(2 downto 0);-- 8 pixel de haut
            o_bg_tile_buffer_pixel_color : out STD_LOGIC_VECTOR(3 downto 0);
-           o_bg_tile_buffer_tile_update_en : out STD_LOGIC;
+           o_bg_tile_buffer_tile_update_en : out STD_LOGIC
 ---------------------------------------------------------          
 
 --            --action sur overlay (a faire en dernier)
@@ -83,7 +82,8 @@ entity controller is
 --            o_overlay_pos_y: out STD_LOGIC_VECTOR(9 downto 0);
            
            -- instruction valide (Faire allumer une led en guise de YOLO) => qu'on peu reset avec un bouton
-           o_instruction_valid : out STD_LOGIC);
+--           o_instruction_valid : out STD_LOGIC
+           );
 end controller;
 
 architecture Behavioral of controller is
@@ -104,11 +104,11 @@ architecture Behavioral of controller is
 begin
 
     s_OPCODE <= i_instruction(31 downto 28);
-    process(i_clk, i_reset)
+    process(i_clk)
     begin 
-        if i_reset = '1' then --ajuster le reset fnl                              
-            o_instruction_valid <= '0';
-        elsif rising_edge(i_clk) then
+--        if i_reset = '1' then --ajuster le reset fnl                              
+--            o_instruction_valid <= '0';
+        if rising_edge(i_clk) then
             o_viewport_curr_px_x <= (others => '0');
             o_viewport_curr_px_y <= (others => '0');
             o_viewport_update_en <= '0';
@@ -186,7 +186,7 @@ begin
                 when OPCODE_DARK_REC_OVERLAY =>-- rien pour l'instant                                             
                      
                 when others =>                    
-                    o_instruction_valid <= '1'; -- il c'est produit une erreur (la led est allumé (laule)
+--                    o_instruction_valid <= '1'; -- il c'est produit une erreur (la led est allumé (laule)
                                                            
             end case; 
         end if;
