@@ -38,8 +38,8 @@ entity viewport is
         i_clk :           in  std_logic;
         i_reset :         in  std_logic;
         
-        i_offset_x :      in integer;
-        i_offset_y :      in integer;
+        i_offset_x :      in  std_logic_vector(9 downto 0);
+        i_offset_y :      in  std_logic_vector(9 downto 0);
         o_x :             out std_logic_vector(9 downto 0); -- Bit limitation x = Auto wraparound x
         o_y :             out std_logic_vector(9 downto 0)  -- Bit limitation y = Auto wraparound y
         );
@@ -63,8 +63,8 @@ process(i_clk)
             else
                 -- Update offset when we restart at origin position
                 if s_position_x = 0 and s_position_y = 0 then
-                    s_offset_x <= s_offset_x + i_offset_x;
-                    s_offset_y <= s_offset_y + i_offset_y;
+                    s_offset_x <= s_offset_x + to_integer(signed(i_offset_x));
+                    s_offset_y <= s_offset_y + to_integer(signed(i_offset_y));
                 end if;
 
                 -- Update outputs and cast into a logic vector to apply the waparounds
