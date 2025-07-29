@@ -38,14 +38,14 @@ entity actor is
         -- Nouvelles valeurs à charger (position X/Y de l'acteur et nouvelle tuile) -- les positions des acteurs sont ancré en haut a gauche
        i_tile_update_en      : in  STD_LOGIC;                          -- Active la mise �  jour de l'ID de tuile
        i_tile_pos_index      : in  STD_LOGIC_VECTOR(1 downto 0);     -- Indice (0 � 3)
-       i_new_tile_id         : in  STD_LOGIC_VECTOR (3 downto 0);      -- Nouvelle tuile à afficher pour l'acteur
+       i_new_tile_id         : in  STD_LOGIC_VECTOR (5 downto 0);      -- Nouvelle tuile à afficher pour l'acteur
 
         -- Pixel courant envoyé par le viewport (le pixel qui ce fait print)
         i_curr_px_x       : in  STD_LOGIC_VECTOR (9 downto 0);      -- Position X du pixel courant (à l'écran)
         i_curr_px_y       : in  STD_LOGIC_VECTOR (9 downto 0);      -- Position Y du pixel courant (à l'écran) (pt que sa devrait etre sur 8 downto 0 => 360px de haut visible)
 
         -- Sorties si l'acteur est actif pour ce pixel
-        o_tile_id         : out STD_LOGIC_VECTOR (3 downto 0);      -- ID de la tuile à lire (tile buffer)
+        o_tile_id         : out STD_LOGIC_VECTOR (5 downto 0);      -- ID de la tuile à lire (tile buffer)
         o_tile_px         : out STD_LOGIC_VECTOR (3 downto 0);      -- Coordonnée X locale dans la tuile (0 à 15)
         o_tile_py         : out STD_LOGIC_VECTOR (3 downto 0);      -- Coordonnée Y locale dans la tuile (0 à 15)
         o_is_visible      : out STD_LOGIC                           -- Indique si ce pixel est couvert par l'acteur
@@ -57,7 +57,7 @@ architecture Behavioral of actor is
     signal s_actor_pos_x: STD_LOGIC_VECTOR(9 downto 0) := (others => '0'); -- position de absolue de l'acteur X (coin en haut a gauche)
     signal s_actor_pos_y: STD_LOGIC_VECTOR(9 downto 0) := (others => '0'); -- position de absolue de l'acteur Y (coin en haut a gauche)
     
-    type t_tile_id_array is array (0 to 3) of std_logic_vector(3 downto 0);
+    type t_tile_id_array is array (0 to 3) of std_logic_vector(5 downto 0);
     signal s_actor_tiles : t_tile_id_array := (others => (others => '0')); --Vecteur 2D de tuiles d'acteur. (bit0 correspond a (0,0), bit1 correspond a (0,1) etc,)
     
     --signal s_tile_id: STD_LOGIC_VECTOR(3 downto 0) := (others => '0'); -- la tuile de l'acteur
@@ -85,7 +85,13 @@ begin
                 index := to_integer(unsigned(i_tile_pos_index));
                 s_actor_tiles(index) <= i_new_tile_id;
             end if;
-        end if;
+        end if;  
+          
+        if i_reset = '1' then
+            s_actor_tiles <= (others => (others => '0'));
+            s_actor_pos_x <= (others => '0');
+            s_actor_pos_x  <= (others => '0');         
+        end if;    
     end if;
 end process;
 
