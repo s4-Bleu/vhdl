@@ -51,7 +51,7 @@ entity Tile_buffer_background is
 end Tile_buffer_background;
 
 architecture Behavioral of Tile_buffer_background is
-    
+
     component tile
         Port (
             i_clk         : in  std_logic;
@@ -59,30 +59,35 @@ architecture Behavioral of Tile_buffer_background is
             i_x           : in  std_logic_vector(2 downto 0);
             i_y           : in  std_logic_vector(2 downto 0);
             o_color_index : out std_logic_vector(3 downto 0);
-
-            i_we          : in  std_logic; 
+            i_we          : in  std_logic;
             i_wr_x        : in  std_logic_vector(2 downto 0);
             i_wr_y        : in  std_logic_vector(2 downto 0);
             i_pixel_data  : in  std_logic_vector(3 downto 0)
         );
-     end component;
-        
+    end component;
+
     type tile_output_array_t is array (0 to 63) of std_logic_vector(3 downto 0);
-    signal tile_outputs : tile_output_array_t;   
-        
-    signal selected_color : std_logic_vector(3 downto 0);    
-    
+    signal tile_outputs : tile_output_array_t;
+    signal selected_color : std_logic_vector(3 downto 0);
+
 begin
 
-    -- Génération des 64 tuiles
+    -- Instanciation sécurisée des tuiles
     tiles_generator : for i in 0 to 63 generate
-    
-    signal local_we : std_logic;
-    
+
+        signal we_active : std_logic;
+
     begin
-    
-        local_we <= i_we when i_tile_id = std_logic_vector(to_unsigned(i, 6)) else '0';
-        
+        -- Activation seulement si l'index correspond
+        we_process : process(i_we, i_tile_id)
+        begin
+            if i_we = '1' and i_tile_id = std_logic_vector(to_unsigned(i, 6)) then
+                we_active <= '1';
+            else
+                we_active <= '0';
+            end if;
+        end process;
+
         tile_inst : tile
             port map (
                 i_clk         => i_clk,
@@ -90,34 +95,23 @@ begin
                 i_x           => i_x,
                 i_y           => i_y,
                 o_color_index => tile_outputs(i),
-                i_we          => local_we,
+                i_we          => we_active,
                 i_wr_x        => i_wr_x,
                 i_wr_y        => i_wr_y,
                 i_pixel_data  => i_pixel_data
             );
-            
-        -- Lecture de la sortie color_code du pixel selectionnee
-       -- process(i_clk)
-        --begin
-          --  if rising_edge(i_clk) then
-            --    if i_tile_id = std_logic_vector(to_unsigned(i, 6)) then
-              --      selected_color <= tile_outputs(to_integer(unsigned(i_tile_id)));
-               -- end if;
-            --end if;
-        --end process;
+    end generate;
 
-    end generate; 
-    
-    -- Sélection de la bonne couleur selon i_tile_id
+    -- Multiplexage de lecture
     process(i_clk)
     begin
         if rising_edge(i_clk) then
             selected_color <= tile_outputs(to_integer(unsigned(i_tile_id)));
         end if;
-    end process;  
-    
+    end process;
+
     o_color_code <= selected_color;
 
-
-
 end Behavioral;
+
+
