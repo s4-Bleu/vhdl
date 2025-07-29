@@ -118,7 +118,7 @@ begin
         
     output_selection: process(i_clk) -- Finalement on a comme pas besoin de reset si je comprend bien
     begin
-        if rising_edge(i_clk) then
+--        if rising_edge(i_clk) then
             o_tile_id    <= (others => '0');
             o_tile_px_x    <= (others => '0');
             o_tile_px_y    <= (others => '0');
@@ -135,7 +135,7 @@ begin
                     exit;  -- on a trouvé le premier acteur visible a ce pixel, on sort
                 end if;
             end loop;
-        end if;
+--        end if;
     end process;
 
     
