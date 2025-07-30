@@ -26,10 +26,9 @@ use IEEE.NUMERIC_STD.ALL;
 entity actor is
     Port ( 
         i_clk             : in  STD_LOGIC;
---        i_reset           : in  STD_LOGIC;
+        i_reset           : in  STD_LOGIC;
         i_is_enable       : in STD_LOGIC;        
 
-        -- Signaux de mise à jour
         i_pos_update_en   : in  STD_LOGIC;                          -- Active la mise à jour de la position
         i_tile_update_en  : in  STD_LOGIC;                          -- Active la mise à jour de l'ID de tuile
 
@@ -86,7 +85,7 @@ begin
     end if;
 end process;
 
-update_actor_output: process(i_curr_px_x, i_curr_px_y, s_actor_pos_x, s_actor_pos_y, s_tile_id) --s_is_reset
+update_actor_output: process(i_curr_px_x, i_curr_px_y, s_actor_pos_x, s_actor_pos_y, s_tile_id, i_reset) --s_is_reset
     variable diff_x : unsigned(9 downto 0);
     variable diff_y : unsigned(9 downto 0);
 begin
@@ -96,26 +95,33 @@ begin
 --        o_tile_py    <= (others => '0');
 --        o_tile_id    <= (others => '0');
 --        o_is_visible <= '0';
-    
-    -- on vérifier si le pixel courant est belle et bien dans la zone de l'acteur
-    if (unsigned(i_curr_px_x) >= unsigned(s_actor_pos_x)) and
-       (unsigned(i_curr_px_x) < unsigned(s_actor_pos_x) + largeur_acteur) and
-       (unsigned(i_curr_px_y) >= unsigned(s_actor_pos_y)) and
-       (unsigned(i_curr_px_y) < unsigned(s_actor_pos_y) + hauteur_acteur) then
-       
-       diff_x := unsigned(i_curr_px_x) - unsigned(s_actor_pos_x);
-       diff_y := unsigned(i_curr_px_y) - unsigned(s_actor_pos_y);
-
-        o_tile_px <= STD_LOGIC_VECTOR(diff_x(3 downto 0)); -- on peux ce le permettre car on c'est qu'on est dans la zone de l'acteur
-        o_tile_py <= STD_LOGIC_VECTOR(diff_y(3 downto 0));
-        o_tile_id <= s_tile_id;
-        o_is_visible <= '1';
-
-    else
+    if i_reset = '1' then
         o_tile_px <= (others => '0');
         o_tile_py <= (others => '0');
         o_tile_id <= (others => '0');
         o_is_visible <= '0';
+    else
+    
+        -- on vérifier si le pixel courant est belle et bien dans la zone de l'acteur
+        if (unsigned(i_curr_px_x) >= unsigned(s_actor_pos_x)) and
+           (unsigned(i_curr_px_x) < unsigned(s_actor_pos_x) + largeur_acteur) and
+           (unsigned(i_curr_px_y) >= unsigned(s_actor_pos_y)) and
+           (unsigned(i_curr_px_y) < unsigned(s_actor_pos_y) + hauteur_acteur) then
+           
+           diff_x := unsigned(i_curr_px_x) - unsigned(s_actor_pos_x);
+           diff_y := unsigned(i_curr_px_y) - unsigned(s_actor_pos_y);
+    
+            o_tile_px <= STD_LOGIC_VECTOR(diff_x(3 downto 0)); -- on peux ce le permettre car on c'est qu'on est dans la zone de l'acteur
+            o_tile_py <= STD_LOGIC_VECTOR(diff_y(3 downto 0));
+            o_tile_id <= s_tile_id;
+            o_is_visible <= '1';
+    
+        else
+            o_tile_px <= (others => '0');
+            o_tile_py <= (others => '0');
+            o_tile_id <= (others => '0');
+            o_is_visible <= '0';
+        end if;
     end if;
 end process;
 

@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date: 07/24/2025 01:03:48 PM
+-- Create Date: 07/30/2025 01:52:04 PM
 -- Design Name: 
--- Module Name: Tile_buffer_background_tb - Behavioral
+-- Module Name: Background_manager_2_tb - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -17,108 +17,125 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
-
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity tb_Tile_buffer_background is
-end tb_Tile_buffer_background;
+entity tb_Background_manager is
+end tb_Background_manager;
 
-architecture behavior of tb_Tile_buffer_background is
+architecture behavior of tb_Background_manager is
 
-    -- Composant à tester
-    component Tile_buffer_background
+    component Background_manager
         Port (
-            i_clk        : in  std_logic;
-            i_reset      : in  std_logic;
-            i_tile_id    : in  std_logic_vector(5 downto 0);
-            i_x          : in  std_logic_vector(2 downto 0); 
-            i_y          : in  std_logic_vector(2 downto 0); 
-            i_we         : in  std_logic;
-            i_wr_x       : in  std_logic_vector(2 downto 0); 
-            i_wr_y       : in  std_logic_vector(2 downto 0); 
-            i_pixel_data : in  std_logic_vector(3 downto 0); 
-            o_color_code : out std_logic_vector(3 downto 0)
+            i_clk           : in  STD_LOGIC;
+            i_update_tile_en : in  STD_LOGIC;
+            i_new_pos_x     : in  STD_LOGIC_VECTOR (6 downto 0);
+            i_new_pos_y     : in  STD_LOGIC_VECTOR (6 downto 0);
+            i_new_tile_id   : in  STD_LOGIC_VECTOR (5 downto 0);
+            i_view_px_x     : in  STD_LOGIC_VECTOR (9 downto 0);
+            i_view_px_y     : in  STD_LOGIC_VECTOR (9 downto 0);
+            o_tile_id       : out STD_LOGIC_VECTOR (5 downto 0);
+            o_tile_px_x     : out STD_LOGIC_VECTOR (2 downto 0);
+            o_tile_px_y     : out STD_LOGIC_VECTOR (2 downto 0)
         );
     end component;
 
-    -- Signaux internes
-    signal clk         : std_logic := '0';
-    signal rst         : std_logic := '0';
-    signal tile_id     : std_logic_vector(5 downto 0) := (others => '0');
-    signal x, y        : std_logic_vector(2 downto 0) := (others => '0');
-    signal we          : std_logic := '0';
-    signal wr_x, wr_y  : std_logic_vector(2 downto 0) := (others => '0');
-    signal pixel_data  : std_logic_vector(3 downto 0) := (others => '0');
-    signal color_code  : std_logic_vector(3 downto 0);
+    signal clk         : STD_LOGIC := '0';
+    signal update_en   : STD_LOGIC := '0';
+    signal pos_x       : STD_LOGIC_VECTOR(6 downto 0) := (others => '0');
+    signal pos_y       : STD_LOGIC_VECTOR(6 downto 0) := (others => '0');
+    signal tile_id_in  : STD_LOGIC_VECTOR(5 downto 0) := (others => '0');
+    signal view_px_x        : STD_LOGIC_VECTOR(9 downto 0) := (others => '0');
+    signal view_px_y        : STD_LOGIC_VECTOR(9 downto 0) := (others => '0');
+    signal tile_id_out : STD_LOGIC_VECTOR(5 downto 0);
+    signal tile_px_x   : STD_LOGIC_VECTOR(2 downto 0);
+    signal tile_px_y   : STD_LOGIC_VECTOR(2 downto 0);
 
     constant clk_period : time := 10 ns;
 
 begin
-
-    -- Instanciation du module testé
-    uut: Tile_buffer_background
+    
+    uut: Background_manager
         port map (
-            i_clk        => clk,
-            i_reset      => rst,
-            i_tile_id    => tile_id,
-            i_x          => x,
-            i_y          => y,
-            i_we         => we,
-            i_wr_x       => wr_x,
-            i_wr_y       => wr_y,
-            i_pixel_data => pixel_data,
-            o_color_code => color_code
+            i_clk           => clk,
+            i_update_tile_en => update_en,
+            i_new_pos_x     => pos_x,
+            i_new_pos_y     => pos_y,
+            i_new_tile_id   => tile_id_in,
+            i_view_px_x     => view_px_x,
+            i_view_px_y     => view_px_y,
+            o_tile_id       => tile_id_out,
+            o_tile_px_x     => tile_px_x,
+            o_tile_px_y     => tile_px_y
         );
-
-    -- Génération d'horloge
+    
+    -- Horloge
     clk_process : process
     begin
-        clk <= '0';
-        wait for clk_period / 2;
-        clk <= '1';
-        wait for clk_period / 2;
+        while true loop
+            clk <= '0';
+            wait for clk_period/2;
+            clk <= '1';
+            wait for clk_period/2;
+        end loop;
     end process;
 
-    -- Stimuli de test
+    -- Stimulus
     stim_proc : process
     begin
-        -- Réinitialisation
-        rst <= '1';
-        wait for 2*clk_period;
-        rst <= '0';
+        -- Attendre une horloge complÃ¨te au dÃ©but
+        wait until rising_edge(clk);
 
-        -- Écriture du pixel (2,1) de la tuile 3 avec la valeur 0xA
-        tile_id     <= "000011"; -- tuile 3
-        wr_x        <= "010";    -- colonne 2
-        wr_y        <= "001";    -- ligne 1
-        pixel_data  <= "1010";   -- valeur 0xA
-        we          <= '1';
-        wait for clk_period;
-        we          <= '0';
+        -- Cas 1 : Ã©criture (10,20) -> ID = 0x01
+        pos_x      <= std_logic_vector(to_unsigned(10, 7));
+        pos_y      <= std_logic_vector(to_unsigned(20, 7));
+        tile_id_in <= "000001";
+        update_en  <= '1';
+        wait until rising_edge(clk);
+        update_en  <= '0';
+        wait until rising_edge(clk);
 
-        -- Attente pour stabilisation
-        wait for 2*clk_period;
+        -- Lecture pixel (85,165) ? (10,20)
+        view_px_x <= std_logic_vector(to_unsigned(85, 10));
+        view_px_y <= std_logic_vector(to_unsigned(165, 10));
+        wait until rising_edge(clk);
 
-        -- Lecture du pixel (2,1) de la tuile 3
-        x <= "010";
-        y <= "001";
-        wait for 2*clk_period;
+        -- Cas 2 : Ã©criture (0,0) -> ID = 0x3F
+        update_en  <= '1';
+        pos_x      <= std_logic_vector(to_unsigned(0, 7));
+        pos_y      <= std_logic_vector(to_unsigned(0, 7));
+        tile_id_in <= "111111";
+        
+        wait until rising_edge(clk);
+        update_en  <= '0';
+        wait until rising_edge(clk);
 
-        -- Fin du test
+        -- Lecture pixel (0,0) ? (0,0)
+        view_px_x <= std_logic_vector(to_unsigned(0, 10));
+        view_px_y <= std_logic_vector(to_unsigned(0, 10));
+        wait until rising_edge(clk);
+
+        -- Cas 3 : Ã©criture (127,127) -> ID = 0x15
+        pos_x      <= std_logic_vector(to_unsigned(127, 7));
+        pos_y      <= std_logic_vector(to_unsigned(127, 7));
+        tile_id_in <= "010101";
+        update_en  <= '1';
+        wait until rising_edge(clk);
+        update_en  <= '0';
+        wait until rising_edge(clk);
+
+        -- Lecture pixel (1023,1023) ? (127,127)
+        view_px_x <= std_logic_vector(to_unsigned(1023, 10));
+        view_px_y <= std_logic_vector(to_unsigned(1023, 10));
+        wait until rising_edge(clk);
+
+        -- Cas 4 : lecture vide (64,64) ? (8,8)
+        view_px_x <= std_logic_vector(to_unsigned(64, 10));
+        view_px_y <= std_logic_vector(to_unsigned(64, 10));
+        wait until rising_edge(clk);
+
         wait;
     end process;
 
 end behavior;
-

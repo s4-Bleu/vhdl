@@ -87,7 +87,7 @@ end component;
 
 component actor_manager is
     Port ( i_clk : in STD_LOGIC;
---           i_reset : in STD_LOGIC;
+           i_reset : in STD_LOGIC;
            i_actor_update_en : in STD_LOGIC;
            i_actor_id : in STD_LOGIC_VECTOR (2 downto 0);
            i_update_pos_en : in STD_LOGIC;
@@ -121,15 +121,48 @@ end component;
 
 --                      BACKGROUND_MANAGER
 
---component background_manager is
+component Background_manager is
+    Port ( i_clk : in STD_LOGIC;
+--           i_reset : in STD_LOGIC;
+           
+           --Modification d'une tuile du background
+           i_update_tile_en : in STD_LOGIC;
+           i_new_pos_x : in STD_LOGIC_VECTOR (6 downto 0); --Position de la tuile dans la grille
+           i_new_pos_y : in STD_LOGIC_VECTOR (6 downto 0); --Position de la tuile dans la grille
+           i_new_tile_id : in STD_LOGIC_VECTOR (5 downto 0);           
+           
+           --Pixel a lire
+           i_view_px_x : in STD_LOGIC_VECTOR (9 downto 0);
+           i_view_px_y : in STD_LOGIC_VECTOR (9 downto 0);
+           
+           --Lecture d'une tuile
+           o_tile_id   : out STD_LOGIC_VECTOR (5 downto 0);
+           o_tile_px_x : out STD_LOGIC_VECTOR (2 downto 0);
+           o_tile_px_y : out STD_LOGIC_VECTOR (2 downto 0)
+           );        
 
---end component;
+end component;
+----                      BACKGROUND_TILE_BUFFER
 
---                      BACKGROUND_TILE_BUFFER
+component  Tile_buffer_background is
+ Port (
+        i_clk        : in  std_logic;
+--        i_reset      : in  std_logic;
 
---component background_tile_buffer is
+        i_tile_id    : in  std_logic_vector(5 downto 0); --64 tuiles
+        i_x          : in  std_logic_vector(2 downto 0); 
+        i_y          : in  std_logic_vector(2 downto 0); 
+        
+        i_we         : in std_logic;
+        i_wr_x       : in  std_logic_vector(2 downto 0); 
+        i_wr_y       : in  std_logic_vector(2 downto 0); 
+        i_pixel_data : in std_logic_vector(3 downto 0); 
 
---end component;
+        o_color_code : out std_logic_vector(3 downto 0)
+    );
+end component;    
+
+
 
 --                      COLOR_CONNECTOR
 
@@ -184,13 +217,21 @@ signal s_global_x : STD_LOGIC_VECTOR(9 downto 0);
 signal s_global_y : STD_LOGIC_VECTOR(9 downto 0);
 
 -- SIGNAUX SORTANT DU ACTOR_MANAGER
-signal s_tile_id : STD_LOGIC_VECTOR (3 downto 0);
-signal s_tile_px_x : STD_LOGIC_VECTOR (3 downto 0);
-signal s_tile_px_y : STD_LOGIC_VECTOR (3 downto 0);
-signal s_visible : STD_LOGIC;
+signal s_o_actor_tile_id : STD_LOGIC_VECTOR (3 downto 0);
+signal s_o_actor_tile_px_x : STD_LOGIC_VECTOR (3 downto 0);
+signal s_o_actor_tile_px_y : STD_LOGIC_VECTOR (3 downto 0);
+signal s_actor_visible : STD_LOGIC;
 
 -- SIGNAUX SORTANT DU ACTOR_TILE_BUFFER
 signal s_color_code_actor_out: STD_LOGIC_VECTOR (3 downto 0);
+
+-- SIGNAUX SORTANT DU BACKGROUND_MANAGER
+signal s_o_bg_tile_id   : STD_LOGIC_VECTOR (5 downto 0);
+signal s_o_bg_tile_px_x : STD_LOGIC_VECTOR (2 downto 0);
+signal s_o_bg_tile_px_y : STD_LOGIC_VECTOR (2 downto 0);
+
+-- SIGNAUX SORTANT DU BACKROUND_TILE_BUFFER
+signal s_color_code_bg_out: STD_LOGIC_VECTOR (3 downto 0);
 
 -- SIGNAUX SORTANT DU COLOR_CONNECTOR
 signal s_color : STD_LOGIC_VECTOR(23 downto 0);
@@ -200,6 +241,7 @@ signal s_error_color : STD_LOGIC;
 
 signal s_actor_update_en : STD_LOGIC;
 
+signal s_selected_color_code : STD_LOGIC_VECTOR (3 downto 0);
 
 
 begin
@@ -252,7 +294,7 @@ begin
         
     inst_actor_manager : actor_manager
      Port map ( i_clk => clk,                                                              
---        i_reset => '0',                                                           
+        i_reset =>    rst,                                                      
         i_actor_update_en => s_actor_update_en,                                                  
         i_actor_id => s_actor_id,                                    
         i_update_pos_en => s_actor_pos_update_en,                                                    
@@ -262,17 +304,17 @@ begin
         i_new_tile_id => s_actor_new_tile_id,                                
         i_curr_px_x => s_global_x,                                    
         i_curr_px_y => s_global_y,                                    
-        o_tile_id => s_tile_id,                                  
-        o_tile_px_x => s_tile_px_x,                                 
-        o_tile_px_y => s_tile_px_y,                                 
-        o_visible => s_visible);   
+        o_tile_id => s_o_actor_tile_id,                                  
+        o_tile_px_x => s_o_actor_tile_px_x,                                 
+        o_tile_px_y => s_o_actor_tile_px_y,                                 
+        o_visible => s_actor_visible);   
         
     inst_actor_tile_buffer: actor_tile_buffer
      Port map ( i_clk => clk,                                       
 --        i_reset => '0',                                 
-        i_tile_id => s_tile_id,
-        i_tile_read_px_x => s_tile_px_x,        
-        i_tile_read_px_y => s_tile_px_y,  
+        i_tile_id => s_o_actor_tile_id,
+        i_tile_read_px_x => s_o_actor_tile_px_x,        
+        i_tile_read_px_y => s_o_actor_tile_px_y,  
         i_write_tile_id => s_actor_tile_buffer_tile_id,      
         i_write_tile_px_x => s_actor_tile_buffer_tile_px_x,       
         i_write_tile_px_y => s_actor_tile_buffer_tile_px_y,       
@@ -280,10 +322,45 @@ begin
         i_write_tile_pixel_color => s_actor_tile_buffer_pixel_color,
         o_color_code => s_color_code_actor_out);
         
---    s_selected_color_code <= s_color_code_bg_out when s_color_code_actor_out = X"F" else s_color_code_actor_out; -- genre couleur transparente = 15 => 0xF
+    inst_Background_manager : Background_manager
+    Port map ( i_clk => clk,
+           --Modification d'une tuile du background
+           i_update_tile_en => s_bg_buffer_tile_update_en,
+           i_new_pos_x => s_bg_buffer_tile_row,
+           i_new_pos_y => s_bg_buffer_tile_col,
+           i_new_tile_id => s_bg_buffer_tile_id,
+           
+           --Pixel a lire
+           i_view_px_x => s_global_x,
+           i_view_px_y => s_global_y,
+           
+           --Lecture d'une tuile
+           o_tile_id   => s_o_bg_tile_id,
+           o_tile_px_x => s_o_bg_tile_px_x,
+           o_tile_px_y => s_o_bg_tile_px_y            
+           ); 
+           
+    inst_Tile_buffer_background : Tile_buffer_background
+    Port map (
+        i_clk        => clk,
+--        i_reset      : in  std_logic;
+
+        i_tile_id    => s_o_bg_tile_id,
+        i_x          => s_o_bg_tile_px_x, 
+        i_y          => s_o_bg_tile_px_x, 
+        
+        i_we         => s_bg_tile_buffer_tile_update_en,
+        i_wr_x       => s_bg_tile_buffer_tile_x, 
+        i_wr_y       => s_bg_tile_buffer_tile_y, 
+        i_pixel_data => s_bg_tile_buffer_pixel_color, 
+
+        o_color_code => s_color_code_bg_out
+    );
+   
+    s_selected_color_code <= s_color_code_bg_out when s_actor_visible = '0' else s_color_code_actor_out; -- genre couleur transparente = 15 => 0xF
     inst_color_connector: color_connector
      Port map (
-        i_colorCode => s_color_code_actor_out, -- s_selected_color_code
+        i_colorCode => s_selected_color_code, -- s_selected_color_code or s_color_code_actor_out when no bg
         o_color     => s_color,
         o_error     => s_error_color );                                                   
     
@@ -296,17 +373,6 @@ begin
     s_i_x <= i_x(9 downto 0);
     s_i_y <= i_y(9 downto 0);
     
---    s_actor_new_tile_id <= i_instruction(24 downto 21);
-    
---    s_actor_tile_buffer_tile_id <= i_instruction(27 downto 24);
---    s_actor_tile_buffer_tile_px_x <= i_instruction(23 downto 20);
---    s_actor_tile_buffer_tile_px_y <= i_instruction(19 downto 16);
---    s_actor_tile_buffer_pixel_color <= i_instruction(15 downto 12);
-    
-    
---    s_actor_id <= i_instruction(27 downto 25);
---    s_actor_new_pos_x <= i_instruction(24 downto 15);
---    s_actor_new_pos_y <= i_instruction(14 downto 5);
     
     
     

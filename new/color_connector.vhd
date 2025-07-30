@@ -57,6 +57,21 @@ with i_colorCode select
              x"FF00A5" when x"8", -- Orange
              x"696969" when x"F", -- Transparent merde à vic
              x"000000" when others;
+--with i_colorCode select
+--  o_color <= x"FFFFFF" when x"0",
+--             x"000000" when x"1",
+--             x"353FD0" when x"2",
+--             x"1D33A9" when x"3",
+--             x"000080" when x"4",
+--             x"87EBCE" when x"5",
+--             x"FF00FF" when x"6",
+--             x"FF00A5" when x"7",
+--             x"FF0000" when x"8",
+--             x"646464" when x"9",
+--             x"7E7CE7" when x"A",
+--             x"696969" when x"F", -- Transparent merde à vic
+--             x"000000" when others;
+
 
 with i_colorCode select
 o_error <=  '0' when x"0", -- noir
@@ -68,6 +83,8 @@ o_error <=  '0' when x"0", -- noir
             '0' when x"6", -- bleu ciel
             '0' when x"7", -- blanc
             '0' when x"8", -- Orange
+            '0' when x"9",
+            '0' when x"A",
             '0' when x"F", -- Transparent merde à vic
             '1' when others;
 

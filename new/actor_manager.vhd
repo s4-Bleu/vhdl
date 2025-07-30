@@ -33,7 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity actor_manager is
     Port ( i_clk : in STD_LOGIC;
---           i_reset : in STD_LOGIC;
+           i_reset : in STD_LOGIC;
            i_actor_update_en : in STD_LOGIC;
            i_actor_id : in STD_LOGIC_VECTOR (2 downto 0);
            i_update_pos_en : in STD_LOGIC;
@@ -67,7 +67,7 @@ architecture Behavioral of actor_manager is
      component actor is
         Port ( 
             i_clk             : in  STD_LOGIC;
---            i_reset           : in  STD_LOGIC;
+            i_reset           : in  STD_LOGIC;
             i_is_enable       : in STD_LOGIC;
             i_pos_update_en   : in  STD_LOGIC;
             i_tile_update_en  : in  STD_LOGIC;
@@ -100,7 +100,7 @@ begin
         actor_inst: actor
         port map (
             i_clk => i_clk,
---            i_reset => i_reset,
+            i_reset => i_reset,
             i_is_enable => s_actor_en_update(i), 
             i_pos_update_en =>   i_update_pos_en,
             i_tile_update_en =>  i_update_tile_en,
@@ -118,24 +118,30 @@ begin
         
     output_selection: process(i_clk) -- Finalement on a comme pas besoin de reset si je comprend bien
     begin
---        if rising_edge(i_clk) then
-            o_tile_id    <= (others => '0');
-            o_tile_px_x    <= (others => '0');
-            o_tile_px_y    <= (others => '0');
-            o_visible    <= '0';
-    
-            -- Parcours des acteurs, priorité au plus petit ID visible
-            for i in 0 to NB_ACTORS - 1 loop
-                if s_is_visible_arr(i) = '1' then --if s_is_visible_arr(i) = '1' and unsigned(s_tile_id_arr(i)) /= 0 then
-                    o_tile_id <= s_tile_id_arr(i);
-                    o_tile_px_x <= s_tile_x_arr(i);
-                    o_tile_px_y <= s_tile_y_arr(i);
-                    o_visible <= '1';
-                    report "Acteur visible trouvé à l'index i = " & integer'image(i) severity note;
-                    exit;  -- on a trouvé le premier acteur visible a ce pixel, on sort
-                end if;
-            end loop;
---        end if;
+        if i_reset = '1' then
+--            s_is_visible_arr <= (others => '0');
+--            o_visible    <= '0';
+        else
+            if rising_edge(i_clk) then
+                o_tile_id    <= (others => '0');
+                o_tile_px_x    <= (others => '0');
+                o_tile_px_y    <= (others => '0');
+                o_visible    <= '0';
+        
+                -- Parcours des acteurs, priorité au plus petit ID visible
+                for i in 0 to NB_ACTORS - 1 loop
+                    if s_is_visible_arr(i) = '1' then --if s_is_visible_arr(i) = '1' and unsigned(s_tile_id_arr(i)) /= 0 then
+                        o_tile_id <= s_tile_id_arr(i);
+                        o_tile_px_x <= s_tile_x_arr(i);
+                        o_tile_px_y <= s_tile_y_arr(i);
+                        o_visible <= '1';
+                        report "Acteur visible trouvé à l'index i = " & integer'image(i) severity note;
+                        exit;  -- on a trouvé le premier acteur visible a ce pixel, on sort
+                    end if;
+                end loop;
+             end if;
+         end if;
+     
     end process;
 
     
