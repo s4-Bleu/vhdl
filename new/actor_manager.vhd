@@ -33,17 +33,18 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity actor_manager is
     Port ( i_clk : in STD_LOGIC;
---           i_reset : in STD_LOGIC;
+           i_reset : in STD_LOGIC;
            i_actor_update_en : in STD_LOGIC;
            i_actor_id : in STD_LOGIC_VECTOR (2 downto 0);
            i_update_pos_en : in STD_LOGIC;
            i_update_tile_en : in STD_LOGIC;
            i_new_pos_x : in STD_LOGIC_VECTOR (9 downto 0);
            i_new_pos_y : in STD_LOGIC_VECTOR (9 downto 0);--je pense que c'est 8 downto 0 fnl
-           i_new_tile_id : in STD_LOGIC_VECTOR (3 downto 0);
+           i_tile_pos_index : in STD_LOGIC_VECTOR (1 downto 0);
+           i_new_tile_id : in STD_LOGIC_VECTOR (5 downto 0);
            i_curr_px_x : in STD_LOGIC_VECTOR (9 downto 0);
            i_curr_px_y : in STD_LOGIC_VECTOR (9 downto 0);
-           o_tile_id : out STD_LOGIC_VECTOR (3 downto 0);
+           o_tile_id : out STD_LOGIC_VECTOR (5 downto 0);
            o_tile_px_x : out STD_LOGIC_VECTOR (3 downto 0);
            o_tile_px_y : out STD_LOGIC_VECTOR (3 downto 0);
            o_visible : out STD_LOGIC);
@@ -54,7 +55,7 @@ architecture Behavioral of actor_manager is
 -- Nombre d'acteurs
     constant NB_ACTORS : integer := 8;
 
-    type tile_id_array is array (0 to NB_ACTORS-1) of STD_LOGIC_VECTOR(3 downto 0);
+    type tile_id_array is array (0 to NB_ACTORS-1) of STD_LOGIC_VECTOR(5 downto 0);
     type tile_coord_array is array (0 to NB_ACTORS-1) of STD_LOGIC_VECTOR(3 downto 0);
     type is_visible_array is array (0 to NB_ACTORS-1) of STD_LOGIC;
     
@@ -67,16 +68,21 @@ architecture Behavioral of actor_manager is
      component actor is
         Port ( 
             i_clk             : in  STD_LOGIC;
---            i_reset           : in  STD_LOGIC;
+            i_reset           : in  STD_LOGIC;
             i_is_enable       : in STD_LOGIC;
+
             i_pos_update_en   : in  STD_LOGIC;
-            i_tile_update_en  : in  STD_LOGIC;
             i_new_pos_x       : in  STD_LOGIC_VECTOR (9 downto 0);
             i_new_pos_y       : in  STD_LOGIC_VECTOR (9 downto 0);
-            i_new_tile_id     : in  STD_LOGIC_VECTOR (3 downto 0);
+
+            i_tile_update_en  : in  STD_LOGIC;
+            i_tile_pos_index  : in  STD_LOGIC_VECTOR (1 downto 0);
+            i_new_tile_id     : in  STD_LOGIC_VECTOR (5 downto 0);
+
             i_curr_px_x       : in  STD_LOGIC_VECTOR (9 downto 0);
             i_curr_px_y       : in  STD_LOGIC_VECTOR (9 downto 0);
-            o_tile_id         : out STD_LOGIC_VECTOR (3 downto 0);
+
+            o_tile_id         : out STD_LOGIC_VECTOR (5 downto 0);
             o_tile_px         : out STD_LOGIC_VECTOR (3 downto 0);
             o_tile_py         : out STD_LOGIC_VECTOR (3 downto 0);
             o_is_visible      : out STD_LOGIC
@@ -100,13 +106,14 @@ begin
         actor_inst: actor
         port map (
             i_clk => i_clk,
---            i_reset => i_reset,
+            i_reset => i_reset,
             i_is_enable => s_actor_en_update(i), 
             i_pos_update_en =>   i_update_pos_en,
             i_tile_update_en =>  i_update_tile_en,
             i_new_pos_x => i_new_pos_x,      
             i_new_pos_y => i_new_pos_y,      
             i_new_tile_id => i_new_tile_id, 
+            i_tile_pos_index => i_tile_pos_index,
             i_curr_px_x => i_curr_px_x,      
             i_curr_px_y => i_curr_px_y,  
             o_tile_id => s_tile_id_arr(i),     
