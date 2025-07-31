@@ -64,8 +64,6 @@ process(i_clk)
                 -- Reset offset
                 s_offset_x  <= 0;
                 s_offset_y  <= 0;
-                o_x         <= "0000000000";
-                o_y         <= "0000000000";
             elsif i_write_offset = '1' then
                 -- Update offset
                 s_offset_x <= to_integer(unsigned(i_offset_x));
