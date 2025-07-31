@@ -45,7 +45,7 @@ entity tile is
         i_y            : in  std_logic_vector(2 downto 0);  -- position y � lire
         o_color_index  : out std_logic_vector(3 downto 0);
 
-        -- �criture
+        -- Ecriture
         i_we           : in  std_logic;                     -- write enable
         i_wr_x         : in  std_logic_vector(2 downto 0);  -- position x � �crire
         i_wr_y         : in  std_logic_vector(2 downto 0);  -- position y � �crire

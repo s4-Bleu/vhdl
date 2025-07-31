@@ -55,10 +55,7 @@ entity controller is
            o_actor_tile_buffer_tile_px_x : out STD_LOGIC_VECTOR (3 downto 0);
            o_actor_tile_buffer_tile_px_y : out STD_LOGIC_VECTOR (3 downto 0);
            o_actor_tile_buffer_pixel_color : out STD_LOGIC_VECTOR (3 downto 0);
-           o_actor_tile_buffer_tile_update_en : out STD_LOGIC;
-       
-           --action pour clears les actors
-           o_clear_actors_en : out STD_LOGIC;           
+           o_actor_tile_buffer_tile_update_en : out STD_LOGIC;            
            
            --action sur la modification de la grille du background
            o_bg_buffer_tile_id : out STD_LOGIC_VECTOR(5 downto 0);--écriture dans la grille de background
@@ -72,17 +69,6 @@ entity controller is
            o_bg_tile_buffer_tile_y      : out STD_LOGIC_VECTOR(2 downto 0);-- 8 pixel de haut
            o_bg_tile_buffer_pixel_color : out STD_LOGIC_VECTOR(3 downto 0);
            o_bg_tile_buffer_tile_update_en : out STD_LOGIC
----------------------------------------------------------          
-
---            --action sur overlay (a faire en dernier)
---            o_overlay_enable: out STD_LOGIC;
---            o_overlay_width: out STD_LOGIC_VECTOR(3 downto 0);
---            o_overlay_height: out STD_LOGIC_VECTOR(3 downto 0);
---            o_overlay_pos_x: out STD_LOGIC_VECTOR(9 downto 0);
---            o_overlay_pos_y: out STD_LOGIC_VECTOR(9 downto 0);
-           
-           -- instruction valide (Faire allumer une led en guise de YOLO) => qu'on peu reset avec un bouton
---           o_instruction_valid : out STD_LOGIC
            );
 end controller;
 
@@ -127,7 +113,7 @@ begin
             o_actor_tile_buffer_pixel_color <= (others => '0');
             o_actor_tile_buffer_tile_update_en <= '0';                     
             
-            o_clear_actors_en <= '0';
+--            o_clear_actors_en <= '0';
             
             o_bg_buffer_tile_id <= (others => '0');
             o_bg_buffer_tile_row <= (others => '0');
@@ -185,7 +171,37 @@ begin
                 
                 when OPCODE_DARK_REC_OVERLAY =>-- rien pour l'instant                                             
                      
-                when others =>                    
+                when others =>        
+--                    o_viewport_curr_px_x <= (others => '0');
+--                    o_viewport_curr_px_y <= (others => '0');
+--                    o_viewport_update_en <= '0';
+                
+--                    o_actor_id <= (others => '0');            
+--                    o_actor_new_pos_x <= (others => '0');
+--                    o_actor_new_pos_y <= (others => '0');
+--                    o_actor_pos_update_en <= '0';
+                                            
+--                    o_actor_new_tile_id <= (others => '0');
+--                    o_actor_tile_update_en <= '0';
+                    
+--                    o_actor_tile_buffer_tile_id <= (others => '0');
+--                    o_actor_tile_buffer_tile_px_x <= (others => '0');
+--                    o_actor_tile_buffer_tile_px_y <= (others => '0');
+--                    o_actor_tile_buffer_pixel_color <= (others => '0');
+--                    o_actor_tile_buffer_tile_update_en <= '0';                     
+                    
+----                    o_clear_actors_en <= '0';
+                    
+--                    o_bg_buffer_tile_id <= (others => '0');
+--                    o_bg_buffer_tile_row <= (others => '0');
+--                    o_bg_buffer_tile_col <= (others => '0');
+--                    o_bg_buffer_tile_update_en <= '0';     
+                    
+--                    o_bg_tile_buffer_tile_id <= (others => '0');     
+--                    o_bg_tile_buffer_tile_x <= (others => '0');     
+--                    o_bg_tile_buffer_tile_y <= (others => '0');     
+--                    o_bg_tile_buffer_pixel_color <= (others => '0');
+--                    o_bg_tile_buffer_tile_update_en <= '0';                 
 --                    o_instruction_valid <= '1'; -- il c'est produit une erreur (la led est allumé (laule)
                                                            
             end case; 

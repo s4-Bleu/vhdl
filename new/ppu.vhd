@@ -53,7 +53,7 @@ component controller is
            o_actor_tile_buffer_tile_update_en : out STD_LOGIC;
        
            --action pour clears les actors
-           o_clear_actors_en : out STD_LOGIC;           
+--           o_clear_actors_en : out STD_LOGIC;           
            
            --action sur la modification de la grille du background
            o_bg_buffer_tile_id : out STD_LOGIC_VECTOR(5 downto 0);--écriture dans la grille de background
@@ -153,6 +153,7 @@ component  Tile_buffer_background is
         i_x          : in  std_logic_vector(2 downto 0); 
         i_y          : in  std_logic_vector(2 downto 0); 
         
+        i_ch_tile_id  : in  std_logic_vector(5 downto 0);
         i_we         : in std_logic;
         i_wr_x       : in  std_logic_vector(2 downto 0); 
         i_wr_y       : in  std_logic_vector(2 downto 0); 
@@ -269,14 +270,14 @@ begin
         o_actor_tile_buffer_pixel_color => s_actor_tile_buffer_pixel_color,
         o_actor_tile_buffer_tile_update_en => s_actor_tile_buffer_tile_update_en,     
         --action pour clears les actors
-        o_clear_actors_en => s_clear_actors_en,                  
+--        o_clear_actors_en => s_clear_actors_en,                  
         --action sur la modification de la grille du background
         o_bg_buffer_tile_id => s_bg_buffer_tile_id,
         o_bg_buffer_tile_row => s_bg_buffer_tile_row, 
         o_bg_buffer_tile_col => s_bg_buffer_tile_col,
         o_bg_buffer_tile_update_en => s_bg_buffer_tile_update_en,
         --action sur la modification dune tuile de bg dans le buffer (au niveau de la couleur)
-        o_bg_tile_buffer_tile_id => s_bg_tile_buffer_tile_id,
+        o_bg_tile_buffer_tile_id => s_bg_tile_buffer_tile_id, 
         o_bg_tile_buffer_tile_x      => s_bg_tile_buffer_tile_x,
         o_bg_tile_buffer_tile_y      => s_bg_tile_buffer_tile_y,
         o_bg_tile_buffer_pixel_color => s_bg_tile_buffer_pixel_color,
@@ -347,8 +348,9 @@ begin
 
         i_tile_id    => s_o_bg_tile_id,
         i_x          => s_o_bg_tile_px_x, 
-        i_y          => s_o_bg_tile_px_x, 
+        i_y          => s_o_bg_tile_px_y, 
         
+        i_ch_tile_id => s_bg_tile_buffer_tile_id,
         i_we         => s_bg_tile_buffer_tile_update_en,
         i_wr_x       => s_bg_tile_buffer_tile_x, 
         i_wr_y       => s_bg_tile_buffer_tile_y, 

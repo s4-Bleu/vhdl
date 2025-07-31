@@ -49,13 +49,7 @@ entity Background_manager is
            --Lecture d'une tuile
            o_tile_id   : out STD_LOGIC_VECTOR (5 downto 0);
            o_tile_px_x : out STD_LOGIC_VECTOR (2 downto 0);
-           o_tile_px_y : out STD_LOGIC_VECTOR (2 downto 0)
-           
-           --Modification d'une tuile
---           o_we         : in std_logic;
---           o_wr_x       : in  std_logic_vector(2 downto 0); 
---           o_wr_y       : in  std_logic_vector(2 downto 0); 
---           o_pixel_data : in std_logic_vector(3 downto 0)
+           o_tile_px_y : out STD_LOGIC_VECTOR (2 downto 0)     
            ); 
             
 end Background_manager;
