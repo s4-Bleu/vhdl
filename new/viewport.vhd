@@ -63,8 +63,8 @@ process(i_clk)
         if rising_edge(i_clk) then
             if i_reset = '1' then
                 -- Reset offset
-                s_offset_x  <= "0000000000";
-                s_offset_y  <= "0000000000";
+                s_offset_x  <= 0;
+                s_offset_y  <= 0;
                 o_x         <= "0000000000";
                 o_y         <= "0000000000";
             elsif i_write_offset = '1' then
